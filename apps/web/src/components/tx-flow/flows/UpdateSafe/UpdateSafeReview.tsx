@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { useCurrentChain } from '@/hooks/useChains'
+import { useChain } from '@/hooks/useChains'
 import useSafeInfo from '@/hooks/useSafeInfo'
 import { createUpdateSafeTxs } from '@/services/tx/safeUpdateParams'
 import { createMultiSendCallOnlyTx, createTx } from '@/services/tx/tx-sender'
@@ -9,7 +9,7 @@ import ReviewTransaction, { type ReviewTransactionProps } from '@/components/tx/
 
 export const UpdateSafeReview = (props: ReviewTransactionProps) => {
   const { safe, safeLoaded } = useSafeInfo()
-  const chain = useCurrentChain()
+  const chain = useChain(safe.chainId)
   const { setSafeTx, setSafeTxError } = useContext(SafeTxContext)
 
   useAsync(async () => {

@@ -1,5 +1,11 @@
+import { LATEST_SAFE_VERSION } from '@safe-global/utils/config/constants'
 import { getBlockExplorerLink } from '@safe-global/utils/utils/chains'
-import { FEATURES, getLatestSafeVersion, hasFeature } from '@safe-global/utils/utils/chains'
+import {
+  FEATURES,
+  getLatestSafeVersion,
+  getTargetVersionForSafeMigration,
+  hasFeature,
+} from '@safe-global/utils/utils/chains'
 import { CONFIG_SERVICE_CHAINS } from '@/tests/mocks/chains'
 import { chainBuilder } from '@/tests/builders/chains'
 import { getChainConfig } from '@/utils/chains'
@@ -100,7 +106,17 @@ describe('chains', () => {
           getLatestSafeVersion(
             chainBuilder().with({ chainId: '11155111', recommendedMasterCopyVersion: null }).build(),
           ),
-        ).toEqual('1.4.1')
+        ).toEqual(LATEST_SAFE_VERSION)
+      })
+    })
+
+    describe('getTargetVersionForSafeMigration', () => {
+      it('should use SafeMigration 1.5.0 when CGW still recommends 1.4.1 on Kairos', () => {
+        expect(
+          getTargetVersionForSafeMigration(
+            chainBuilder().with({ chainId: '1001', recommendedMasterCopyVersion: '1.4.1' }).build(),
+          ),
+        ).toEqual('1.5.0')
       })
     })
   })

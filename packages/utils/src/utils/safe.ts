@@ -23,7 +23,7 @@ export const SAFE_CREATION_DATA_ERRORS = {
 }
 
 export const determineMasterCopyVersion = (masterCopy: string, chainId: string): SafeVersion | undefined => {
-  const SAFE_VERSIONS: SafeVersion[] = ['1.4.1', '1.3.0', '1.2.0', '1.1.1', '1.0.0']
+  const SAFE_VERSIONS = ['1.5.0', '1.4.1', '1.3.0', '1.2.0', '1.1.1', '1.0.0'] as SafeVersion[]
   return SAFE_VERSIONS.find((version) => {
     const isL1Singleton = () => {
       const deployments = getSafeSingletonDeployments({ version })?.networkAddresses[chainId]

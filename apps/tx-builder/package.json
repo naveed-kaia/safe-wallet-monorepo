@@ -24,7 +24,7 @@
     "@safe-global/safe-apps-provider": "^0.18.5",
     "@safe-global/safe-apps-react-sdk": "^4.7.2",
     "@safe-global/safe-apps-sdk": "^9.1.0",
-    "@safe-global/safe-deployments": "^1.37.56",
+    "@safe-global/safe-deployments": "patch:@safe-global/safe-deployments@npm%3A1.37.56#~/.yarn/patches/@safe-global-safe-deployments-npm-1.37.56-4eea5ff9ef.patch",
     "@safe-global/safe-gateway-typescript-sdk": "^3.22.9",
     "axios": "^1.8.2",
     "ethereum-blockies-base64": "^1.0.2",

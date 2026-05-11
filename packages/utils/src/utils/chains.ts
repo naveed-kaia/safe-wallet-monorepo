@@ -1,6 +1,9 @@
 import { getExplorerLink } from '@safe-global/utils/utils/gateway'
 import type { SafeVersion } from '@safe-global/types-kit'
-import { getSafeSingletonDeployment } from '@safe-global/safe-deployments'
+import type { SingletonDeployment } from '@safe-global/safe-deployments'
+import { getSafeMigrationDeployment, getSafeSingletonDeployment } from '@safe-global/safe-deployments'
+import semverCoerce from 'semver/functions/coerce'
+import semverGt from 'semver/functions/gt'
 import semverSatisfies from 'semver/functions/satisfies'
 import { LATEST_SAFE_VERSION } from '@safe-global/utils/config/constants'
 import type { Chain } from '@safe-global/store/gateway/AUTO_GENERATED/chains'
@@ -58,6 +61,9 @@ export enum FEATURES {
 
 const MIN_SAFE_VERSION = '1.3.0'
 
+/** Prefer at least this SafeMigration library when resolving delegate-call upgrades (stale CGW / env can stay on 1.4.1). */
+const SAFE_MIGRATION_LIBRARY_MIN_VERSION = '1.5.0' as const
+
 export const hasFeature = (chain: Pick<Chain, 'features'>, feature: FEATURES): boolean => {
   return (chain.features as string[]).includes(feature)
 }
@@ -72,21 +78,142 @@ export const getBlockExplorerLink = (
 }
 /** This version is used if a network does not have the LATEST_SAFE_VERSION deployed yet */
 const FALLBACK_SAFE_VERSION = '1.3.0' as const
+
+/**
+ * Same as `getSafeMigrationDeployment` but falls back when `network` is absent from the registry yet — required for
+ * chains (e.g. Kaia Kairos 1001) where v1.5.0 `networkAddresses` may lag v1.4.1 (same pattern as mapping `to` in safe-migrations.ts).
+ */
+export const resolveSafeMigrationDeploymentForChain = (
+  version: string,
+  chainId: string | number | bigint | undefined,
+): SingletonDeployment | undefined => {
+  const id = chainId === undefined || chainId === null || chainId === '' ? undefined : String(chainId)
+  if (!id) {
+    return getSafeMigrationDeployment({ version, released: true })
+  }
+  return (
+    getSafeMigrationDeployment({ version, released: true, network: id }) ??
+    getSafeMigrationDeployment({ version, released: true })
+  )
+}
+
+/** True when we can resolve a SafeMigration `to` address for this version + chain (see resolveSafeMigrationDeploymentForChain). */
+const hasSafeMigrationDeploymentOnChain = (version: string, chainId: string | number | bigint | undefined): boolean => {
+  const deployment = resolveSafeMigrationDeploymentForChain(version, chainId)
+  if (!deployment) {
+    return false
+  }
+  const id = chainId === undefined || chainId === null || chainId === '' ? undefined : String(chainId)
+  if (!id) {
+    return !!deployment.defaultAddress
+  }
+  return !!(deployment.networkAddresses?.[id] ?? deployment.defaultAddress)
+}
+
+const capVersionByDeployedSingleton = (
+  chainId: string | number | bigint | undefined,
+  candidateVersion: string,
+): SafeVersion => {
+  const net = chainId === undefined || chainId === null || chainId === '' ? undefined : String(chainId)
+  const latestDeploymentVersion = (getSafeSingletonDeployment({ network: net, released: true })?.version ??
+    FALLBACK_SAFE_VERSION) as SafeVersion
+
+  if (semverSatisfies(latestDeploymentVersion, `<=${candidateVersion}`)) {
+    return latestDeploymentVersion
+  } else {
+    return candidateVersion as SafeVersion
+  }
+}
+
 export const getLatestSafeVersion = (
   chain: Pick<Chain, 'recommendedMasterCopyVersion' | 'chainId'> | undefined,
 ): SafeVersion => {
   const latestSafeVersion = chain?.recommendedMasterCopyVersion || LATEST_SAFE_VERSION
 
-  // Without version filter it will always return the LATEST_SAFE_VERSION constant to avoid automatically updating to the newest version if the deployments change
-  const latestDeploymentVersion = (getSafeSingletonDeployment({ network: chain?.chainId, released: true })?.version ??
-    FALLBACK_SAFE_VERSION) as SafeVersion
+  return capVersionByDeployedSingleton(chain?.chainId, latestSafeVersion)
+}
 
-  // The version needs to be smaller or equal to the
-  if (semverSatisfies(latestDeploymentVersion, `<=${latestSafeVersion}`)) {
-    return latestDeploymentVersion
-  } else {
-    return latestSafeVersion as SafeVersion
+/**
+ * Version used to resolve the SafeMigration library for upgrades. Takes the higher of
+ * `recommendedMasterCopyVersion` and build-time `NEXT_PUBLIC_SAFE_VERSION` / `LATEST_SAFE_VERSION`
+ * so a wallet build targeting a newer singleton still migrates via the matching SafeMigration when CGW lags.
+ *
+ * If `safe-deployments` lists a SafeMigration deployment for that target on this chain,
+ * we use it — even when singleton metadata for the chain still tops out at an older release (common on custom
+ * networks). Otherwise we fall back to the same cap as {@link getLatestSafeVersion} (max singleton in the package).
+ *
+ * Additionally enforces {@link SAFE_MIGRATION_LIBRARY_MIN_VERSION} so CGW `recommendedMasterCopyVersion` and
+ * `NEXT_PUBLIC_SAFE_VERSION` pinned to **1.4.1** do not prevent using the **1.5.0** SafeMigration library when it is
+ * deployed on-chain (common on Kaia / fork stacks).
+ */
+export const getTargetVersionForSafeMigration = (
+  chain: Pick<Chain, 'recommendedMasterCopyVersion' | 'chainId'> | undefined,
+): SafeVersion => {
+  console.log('[SafeMigration] getTargetVersionForSafeMigration called', {
+    chainId: chain?.chainId,
+    recommendedMasterCopyVersion: chain?.recommendedMasterCopyVersion,
+    LATEST_SAFE_VERSION,
+    SAFE_MIGRATION_LIBRARY_MIN_VERSION,
+  })
+  const trimmed = chain?.recommendedMasterCopyVersion?.trim()
+  const configuredLatest = (() => {
+    if (!trimmed) {
+      return LATEST_SAFE_VERSION
+    }
+    const a = semverCoerce(trimmed)
+    const b = semverCoerce(LATEST_SAFE_VERSION)
+    if (!a || !b) {
+      return trimmed
+    }
+    return semverGt(b, a) ? LATEST_SAFE_VERSION : trimmed
+  })()
+
+  const migrationLibraryVersion = (() => {
+    const min = semverCoerce(SAFE_MIGRATION_LIBRARY_MIN_VERSION)
+    const cur = semverCoerce(configuredLatest)
+    if (!min || !cur) {
+      return configuredLatest
+    }
+    return semverGt(min, cur) ? SAFE_MIGRATION_LIBRARY_MIN_VERSION : configuredLatest
+  })()
+
+  console.log('[SafeMigration] versions computed', { configuredLatest, migrationLibraryVersion })
+
+  const hasDeployment = hasSafeMigrationDeploymentOnChain(migrationLibraryVersion, chain?.chainId)
+  console.log('[SafeMigration] hasSafeMigrationDeploymentOnChain', {
+    migrationLibraryVersion,
+    chainId: chain?.chainId,
+    hasDeployment,
+  })
+
+  if (hasDeployment) {
+    console.log('[SafeMigration] -> returning', migrationLibraryVersion)
+    return migrationLibraryVersion as SafeVersion
   }
+
+  const cappedSingletonVersion = capVersionByDeployedSingleton(chain?.chainId, migrationLibraryVersion)
+  console.log('[SafeMigration] cappedSingletonVersion', cappedSingletonVersion)
+
+  /**
+   * Singleton registry may still top out at 1.4.1 for a chain while SafeMigration **library** 1.5.0 is already
+   * available (canonical default). In that case {@link capVersionByDeployedSingleton} returns 1.4.1 — too low for
+   * migrating to a 1.5.0 singleton; prefer {@link SAFE_MIGRATION_LIBRARY_MIN_VERSION} when it resolves on-chain.
+   */
+  const minLib = semverCoerce(SAFE_MIGRATION_LIBRARY_MIN_VERSION)
+  const cappedSingleton = semverCoerce(cappedSingletonVersion)
+
+  if (
+    minLib &&
+    cappedSingleton &&
+    semverGt(minLib, cappedSingleton) &&
+    hasSafeMigrationDeploymentOnChain(SAFE_MIGRATION_LIBRARY_MIN_VERSION, chain?.chainId)
+  ) {
+    console.log('[SafeMigration] -> fallback to SAFE_MIGRATION_LIBRARY_MIN_VERSION', SAFE_MIGRATION_LIBRARY_MIN_VERSION)
+    return SAFE_MIGRATION_LIBRARY_MIN_VERSION as SafeVersion
+  }
+
+  console.log('[SafeMigration] -> returning cappedSingletonVersion', cappedSingletonVersion)
+  return cappedSingletonVersion
 }
 
 export const isNonCriticalUpdate = (version?: string | null) => {

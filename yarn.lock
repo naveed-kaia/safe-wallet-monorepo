@@ -11426,12 +11426,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm:1.37.56#.yarn/patches/@safe-global-safe-deployments-npm-1.37.56.patch::locator=%40safe-global%2Fsafe-wallet%40workspace%3A.":
+"@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm:1.37.56#.yarn/patches/@safe-global-safe-deployments-npm-1.37.56-4eea5ff9ef.patch::locator=%40safe-global%2Fsafe-wallet%40workspace%3A.":
   version: 1.37.56
-  resolution: "@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm%3A1.37.56#.yarn/patches/@safe-global-safe-deployments-npm-1.37.56.patch::version=1.37.56&hash=5a9dfd&locator=%40safe-global%2Fsafe-wallet%40workspace%3A."
+  resolution: "@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm%3A1.37.56#.yarn/patches/@safe-global-safe-deployments-npm-1.37.56-4eea5ff9ef.patch::version=1.37.56&hash=849bb8&locator=%40safe-global%2Fsafe-wallet%40workspace%3A."
   dependencies:
     semver: "npm:^7.6.2"
-  checksum: 10/58779ecc6c44055455c170a782d5752dff25f597683b9a3ba98e1b2053c47d2fd0a327dfaf12adecac8cc4d0fd677f739dc2e57e97f20d74423d4f69b03d1911
+  checksum: 10/28b1be684eb1d9fcfa0dfff904dd0381b74da647ce67742d330658d3764236d0e9ea2b40c180a9258b554d2399a66ebdfd0ac289f0ee1eae7bd3f0bfc7c1bd27
   languageName: node
   linkType: hard
 
@@ -11559,7 +11559,7 @@ __metadata:
     "@safe-global/safe-apps-provider": "npm:^0.18.5"
     "@safe-global/safe-apps-react-sdk": "npm:^4.7.2"
     "@safe-global/safe-apps-sdk": "npm:^9.1.0"
-    "@safe-global/safe-deployments": "npm:^1.37.56"
+    "@safe-global/safe-deployments": "patch:@safe-global/safe-deployments@npm%3A1.37.56#~/.yarn/patches/@safe-global-safe-deployments-npm-1.37.56-4eea5ff9ef.patch"
     "@safe-global/safe-gateway-typescript-sdk": "npm:^3.22.9"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.6.3"
@@ -11670,7 +11670,7 @@ __metadata:
     "@safe-global/api-kit": "npm:^2.4.6"
     "@safe-global/protocol-kit": "npm:^5.2.23"
     "@safe-global/safe-apps-sdk": "npm:^9.1.0"
-    "@safe-global/safe-deployments": "npm:^1.37.56"
+    "@safe-global/safe-deployments": "patch:@safe-global/safe-deployments@npm%3A1.37.56#~/.yarn/patches/@safe-global-safe-deployments-npm-1.37.56-4eea5ff9ef.patch"
     "@safe-global/safe-modules-deployments": "npm:^2.2.22"
     "@safe-global/store": "workspace:^"
     "@safe-global/test": "workspace:^"

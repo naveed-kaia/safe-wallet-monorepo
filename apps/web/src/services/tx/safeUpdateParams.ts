@@ -14,10 +14,14 @@ import { decodeMultiSendData } from '@safe-global/protocol-kit/dist/src/utils'
 import { Gnosis_safe__factory } from '@safe-global/utils/types/contracts/factories/@safe-global/safe-deployments/dist/assets/v1.1.1'
 import { sameAddress } from '@safe-global/utils/utils/addresses'
 import { determineMasterCopyVersion } from '@safe-global/utils/utils/safe'
-import { getSafeMigrationDeployment } from '@safe-global/safe-deployments'
-import { getLatestSafeVersion } from '@safe-global/utils/utils/chains'
+import { getLatestSafeVersion, resolveSafeMigrationDeploymentForChain } from '@safe-global/utils/utils/chains'
 import { assertValidSafeVersion } from '@safe-global/utils/services/contracts/utils'
-import { SAFE_TO_L2_MIGRATION_VERSION } from '@safe-global/utils/config/constants'
+
+/** Safe singletons from 1.3.0 onward use the standard proxy + SafeMigration delegate-call path (see SafeMigration.sol). */
+const shouldMigrateViaSafeMigrationContract = (safeVersion: string): boolean => {
+  const base = safeVersion.split('+')[0]
+  return semverSatisfies(base, '>=1.3.0 <1.5.0')
+}
 
 const getChangeFallbackHandlerCallData = async (
   safeContractInstance: SafeContractImplementationType,
@@ -33,21 +37,27 @@ const getChangeFallbackHandlerCallData = async (
 }
 
 /**
- * For 1.3.0 Safes, does a delegate call to a migration contract.
+ * For Safes on singleton >=1.3.0 and <1.5.0, performs a delegate call to the SafeMigration deployment for the target version (chain.recommendedMasterCopyVersion / LATEST_SAFE_VERSION).
  *
- * For older Safes, creates two transactions:
+ * For older (<1.3.0) Safes, creates two transactions:
  * - change the mastercopy address
  * - set the fallback handler address
  */
 export const createUpdateSafeTxs = async (safe: SafeState, chain: Chain): Promise<MetaTransactionData[]> => {
   assertValidSafeVersion(safe.version)
 
-  // 1.3.0 Safes are updated using a delegate call to a migration contract
-  if (semverSatisfies(safe.version, '1.3.0')) {
+  console.log('[SafeMigration] createUpdateSafeTxs called', {
+    safeVersion: safe.version,
+    chainId: chain.chainId,
+    recommendedMasterCopyVersion: chain.recommendedMasterCopyVersion,
+    shouldMigrate: shouldMigrateViaSafeMigrationContract(safe.version),
+  })
+
+  if (shouldMigrateViaSafeMigrationContract(safe.version)) {
     return [createUpdateMigration(chain, safe.version, safe.fallbackHandler?.value)]
   }
 
-  // For older Safes, we need to create two transactions
+  // Legacy (<1.3.0) Safes: changeMasterCopy + setFallbackHandler
   const latestMasterCopyAddress = (await getReadOnlyGnosisSafeContract(chain, getLatestSafeVersion(chain))).getAddress()
   const currentReadOnlySafeContract = await getReadOnlyGnosisSafeContract(chain, safe.version)
 
@@ -109,14 +119,14 @@ export const extractTargetVersionFromUpdateSafeTx = (
     return determineMasterCopyVersion(decodedData[0], safe.chainId)
   }
 
-  const safeMigrationAddress = getSafeMigrationDeployment({
-    version: SAFE_TO_L2_MIGRATION_VERSION,
-    network: safe.chainId,
-  })?.networkAddresses[safe.chainId]
+  const migrationVersions = ['1.5.0', '1.4.1', '1.3.0'] as SafeVersion[]
 
-  // Otherwise it must be a delegate call to the SafeMigration 1.4.1 contract
-  if (migrationTxData.operation === 1 && sameAddress(safeMigrationAddress, migrationTxData.to)) {
-    // This contract can only migrate to 1.4.1
-    return SAFE_TO_L2_MIGRATION_VERSION
+  for (const mv of migrationVersions) {
+    const deployment = resolveSafeMigrationDeploymentForChain(mv, safe.chainId)
+    const addr = deployment?.networkAddresses[String(safe.chainId)] ?? deployment?.defaultAddress
+
+    if (migrationTxData.operation === 1 && addr && sameAddress(addr, migrationTxData.to)) {
+      return mv
+    }
   }
 }
