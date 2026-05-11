@@ -1,0 +1,156 @@
+diff --git a/dist/assets/v1.5.0/compatibility_fallback_handler.json b/dist/assets/v1.5.0/compatibility_fallback_handler.json
+index 40bd1db8..5d608be9 100644
+--- a/dist/assets/v1.5.0/compatibility_fallback_handler.json
++++ b/dist/assets/v1.5.0/compatibility_fallback_handler.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/create_call.json b/dist/assets/v1.5.0/create_call.json
+index 4ac317e4..6e19ec45 100644
+--- a/dist/assets/v1.5.0/create_call.json
++++ b/dist/assets/v1.5.0/create_call.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/extensible_fallback_handler.json b/dist/assets/v1.5.0/extensible_fallback_handler.json
+index d487a648..9ae96879 100644
+--- a/dist/assets/v1.5.0/extensible_fallback_handler.json
++++ b/dist/assets/v1.5.0/extensible_fallback_handler.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/multi_send.json b/dist/assets/v1.5.0/multi_send.json
+index ac88ee05..bf209211 100644
+--- a/dist/assets/v1.5.0/multi_send.json
++++ b/dist/assets/v1.5.0/multi_send.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/multi_send_call_only.json b/dist/assets/v1.5.0/multi_send_call_only.json
+index 83cf7572..f813bac3 100644
+--- a/dist/assets/v1.5.0/multi_send_call_only.json
++++ b/dist/assets/v1.5.0/multi_send_call_only.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/safe.json b/dist/assets/v1.5.0/safe.json
+index 93b794ca..57aac51f 100644
+--- a/dist/assets/v1.5.0/safe.json
++++ b/dist/assets/v1.5.0/safe.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/safe_l2.json b/dist/assets/v1.5.0/safe_l2.json
+index 9cf0120b..91627151 100644
+--- a/dist/assets/v1.5.0/safe_l2.json
++++ b/dist/assets/v1.5.0/safe_l2.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/safe_migration.json b/dist/assets/v1.5.0/safe_migration.json
+index 2a9299ff..04218730 100644
+--- a/dist/assets/v1.5.0/safe_migration.json
++++ b/dist/assets/v1.5.0/safe_migration.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/safe_proxy_factory.json b/dist/assets/v1.5.0/safe_proxy_factory.json
+index f1de58d7..c4acfac1 100644
+--- a/dist/assets/v1.5.0/safe_proxy_factory.json
++++ b/dist/assets/v1.5.0/safe_proxy_factory.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/safe_to_l2_setup.json b/dist/assets/v1.5.0/safe_to_l2_setup.json
+index 24de548b..88e2a78c 100644
+--- a/dist/assets/v1.5.0/safe_to_l2_setup.json
++++ b/dist/assets/v1.5.0/safe_to_l2_setup.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/sign_message_lib.json b/dist/assets/v1.5.0/sign_message_lib.json
+index c89f37dc..c8d684a6 100644
+--- a/dist/assets/v1.5.0/sign_message_lib.json
++++ b/dist/assets/v1.5.0/sign_message_lib.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/simulate_tx_accessor.json b/dist/assets/v1.5.0/simulate_tx_accessor.json
+index d622821c..c90e867a 100644
+--- a/dist/assets/v1.5.0/simulate_tx_accessor.json
++++ b/dist/assets/v1.5.0/simulate_tx_accessor.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",
+diff --git a/dist/assets/v1.5.0/token_callback_handler.json b/dist/assets/v1.5.0/token_callback_handler.json
+index 3e6edabd..4648ec6d 100644
+--- a/dist/assets/v1.5.0/token_callback_handler.json
++++ b/dist/assets/v1.5.0/token_callback_handler.json
+@@ -10,6 +10,7 @@
+     },
+     "networkAddresses": {
+         "1": "canonical",
++        "1001": "canonical",
+         "63": "canonical",
+         "756": "canonical",
+         "757": "canonical",

@@ -17,6 +17,7 @@
     "postinstall": "husky"
   },
   "resolutions": {
+    "@safe-global/safe-deployments": "patch:@safe-global/safe-deployments@npm:1.37.56#.yarn/patches/@safe-global-safe-deployments-npm-1.37.56.patch",
     "@ledgerhq/context-module/ethers": "6.14.3",
     "@gnosis.pm/zodiac/ethers": "6.14.3",
     "@ledgerhq/device-signer-kit-ethereum/ethers": "6.14.3",

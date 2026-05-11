@@ -11417,21 +11417,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@safe-global/safe-deployments@npm:^1.37.49":
-  version: 1.37.49
-  resolution: "@safe-global/safe-deployments@npm:1.37.49"
+"@safe-global/safe-deployments@npm:1.37.56":
+  version: 1.37.56
+  resolution: "@safe-global/safe-deployments@npm:1.37.56"
   dependencies:
     semver: "npm:^7.6.2"
-  checksum: 10/0291dd527cf38d0026bb3edbb44da658c2edd4e695290c47de7fc70ad5538c3c6d7a78783d802ffc79cee0e6d15285b671f44dea168bcefa53475f6c5eeb8fab
+  checksum: 10/fd9a226aed59fe017bfade1b0f62e78df246c58a1ad8f88739023c785a1b3226fe5a14c09226f8b5541fb348e84c3cf1cd5b41571a0c3e6685ceeaafb00d4a9a
   languageName: node
   linkType: hard
 
-"@safe-global/safe-deployments@npm:^1.37.50":
-  version: 1.37.50
-  resolution: "@safe-global/safe-deployments@npm:1.37.50"
+"@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm:1.37.56#.yarn/patches/@safe-global-safe-deployments-npm-1.37.56.patch::locator=%40safe-global%2Fsafe-wallet%40workspace%3A.":
+  version: 1.37.56
+  resolution: "@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm%3A1.37.56#.yarn/patches/@safe-global-safe-deployments-npm-1.37.56.patch::version=1.37.56&hash=5a9dfd&locator=%40safe-global%2Fsafe-wallet%40workspace%3A."
   dependencies:
     semver: "npm:^7.6.2"
-  checksum: 10/216fe72a7b492633aac0626bd32edf2a83456e9623813a48ff75f41b7599af83e4729a9409a254968585d7a5e1a794079c1f07fa6e51f8e2fc66e45fb60483d8
+  checksum: 10/58779ecc6c44055455c170a782d5752dff25f597683b9a3ba98e1b2053c47d2fd0a327dfaf12adecac8cc4d0fd677f739dc2e57e97f20d74423d4f69b03d1911
   languageName: node
   linkType: hard
 
@@ -11559,7 +11559,7 @@ __metadata:
     "@safe-global/safe-apps-provider": "npm:^0.18.5"
     "@safe-global/safe-apps-react-sdk": "npm:^4.7.2"
     "@safe-global/safe-apps-sdk": "npm:^9.1.0"
-    "@safe-global/safe-deployments": "npm:^1.37.49"
+    "@safe-global/safe-deployments": "npm:^1.37.56"
     "@safe-global/safe-gateway-typescript-sdk": "npm:^3.22.9"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/jest-dom": "npm:^6.6.3"
@@ -11670,7 +11670,7 @@ __metadata:
     "@safe-global/api-kit": "npm:^2.4.6"
     "@safe-global/protocol-kit": "npm:^5.2.23"
     "@safe-global/safe-apps-sdk": "npm:^9.1.0"
-    "@safe-global/safe-deployments": "npm:^1.37.50"
+    "@safe-global/safe-deployments": "npm:^1.37.56"
     "@safe-global/safe-modules-deployments": "npm:^2.2.22"
     "@safe-global/store": "workspace:^"
     "@safe-global/test": "workspace:^"
