@@ -9,11 +9,19 @@ import { isLegacyVersion } from '@safe-global/utils/services/contracts/utils'
 import { isInDeployments } from '@safe-global/utils/hooks/coreSDK/utils'
 import type { SafeCoreSDKProps } from '@safe-global/utils/hooks/coreSDK/types'
 import { keccak256 } from 'ethers'
+import semver from 'semver'
 import {
   getL2MasterCopyVersionByCodeHash,
   isL2MasterCopyCodeHash,
 } from '@safe-global/utils/services/contracts/deployments'
 import { logError, Errors } from '@/services/exceptions'
+
+/**
+ * The highest Safe contract version supported by the installed @safe-global/protocol-kit.
+ * Safe 1.5.0+ contracts have the same ABI as 1.4.1 but protocol-kit's getSafeContractInstance
+ * switch statement only handles up to 1.4.1. Upgrade protocol-kit when 1.5.0 support is added.
+ */
+const PROTOCOL_KIT_MAX_SUPPORTED_VERSION = '1.4.1'
 
 // Safe Core SDK
 export const initSafeSDK = async ({
@@ -105,11 +113,58 @@ export const initSafeSDK = async ({
     return
   }
 
+  // protocol-kit reads VERSION() from the on-chain contract and passes it directly to
+  // getSafeContractInstance(). If the contract returns a version beyond what the installed
+  // protocol-kit supports (e.g. 1.5.0 when max is 1.4.1) it throws "Invalid Safe version".
+  // Safe 1.5.0 is ABI-compatible with 1.4.1 so we can safely use the 1.4.1 contract
+  // bindings once contractNetworks overrides the singleton address for the SDK.
+  // TODO: remove this guard once @safe-global/protocol-kit is upgraded to support 1.5.0+.
+  const baseVersion = safeVersion.split('+')[0]
+  if (semver.valid(baseVersion) && semver.gt(baseVersion, PROTOCOL_KIT_MAX_SUPPORTED_VERSION)) {
+    const contractNetworksOverride: ContractNetworksConfig = {
+      ...contractNetworks,
+      [chainId]: {
+        ...(contractNetworks?.[chainId] ?? {}),
+        safeSingletonAddress: implementation,
+      },
+    }
+    return Safe.init({
+      provider: provider._getConnection().url,
+      safeAddress: address,
+      isL1SafeSingleton,
+      contractNetworks: contractNetworksOverride,
+    }).catch(() => {
+      // If protocol-kit still cannot handle the version (e.g. throws "Invalid Safe version"),
+      // degrade gracefully: SDK is unavailable for this Safe but the app remains functional
+      // for read-only operations served by the CGW API.
+      console.warn(
+        `[SafeSDK] Safe ${address} uses version ${safeVersion} which is not yet supported ` +
+          `by the installed @safe-global/protocol-kit (max: ${PROTOCOL_KIT_MAX_SUPPORTED_VERSION}). ` +
+          `SDK not initialized. Upgrade protocol-kit to resolve.`,
+      )
+      return undefined
+    })
+  }
+
   return Safe.init({
     provider: provider._getConnection().url,
     safeAddress: address,
     isL1SafeSingleton,
     ...(contractNetworks ? { contractNetworks } : {}),
+  }).catch((e: Error) => {
+    // protocol-kit reads VERSION() directly from chain and will throw "Invalid Safe version"
+    // if the on-chain contract returns a version its switch statement doesn't handle (e.g. 1.5.0).
+    // This commonly happens right after a Safe upgrade when the CGW cache still reports the old
+    // version so our explicit guard above wasn't triggered. Degrade gracefully.
+    if (e.message?.includes('Invalid Safe version')) {
+      console.warn(
+        `[SafeSDK] protocol-kit does not support the on-chain Safe version at ${address}. ` +
+          `This may be a transient state right after a Safe upgrade (CGW cache lag). ` +
+          `Upgrade @safe-global/protocol-kit to resolve permanently.`,
+      )
+      return undefined
+    }
+    throw e
   })
 }
 
