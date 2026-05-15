@@ -73,7 +73,7 @@ const enableExperimentalOptimizations = process.env.ENABLE_EXPERIMENTAL_OPTIMIZA
 const nextConfig = {
   output: 'export', // static site export
 
-  transpilePackages: ['@safe-global/store'],
+  transpilePackages: ['@safe-global/store', '@gnosis.pm/zodiac'],
   images: {
     unoptimized: true,
   },
